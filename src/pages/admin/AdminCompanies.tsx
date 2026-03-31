@@ -37,7 +37,7 @@ const AdminCompanies = () => {
 
   const fetchCompanies = async () => {
     setLoading(true);
-    let query = supabase.from("companies").select("*").order("created_at", { ascending: false });
+    let query = supabase.from("companies").select("*").order("created_at", { ascending: false }) as any;
     if (filterStatus !== "all") query = query.eq("status", filterStatus);
     if (search) query = query.ilike("name", `%${search}%`);
     const { data } = await query;
