@@ -3,8 +3,11 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import bcrypt from "bcryptjs";
+import fs from "node:fs";
+import path from "node:path";
 import { z } from "zod";
 import { v4 as uuid } from "uuid";
+import { fileURLToPath } from "node:url";
 import { pool, query, queryOne, withTransaction } from "./db.mjs";
 import { clearSessionCookie, getUserContextById, requireAuth, requireRoles, setSessionCookie, signSession } from "./auth.mjs";
 import { logActivity, trackChange } from "./audit.mjs";
@@ -44,6 +47,10 @@ config({ path: ".env.mariadb" });
 const app = express();
 const apiPort = Number(process.env.API_PORT || 3001);
 const appDomain = String(process.env.APP_DOMAIN || "vexortech.cloud").toLowerCase();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const distPath = path.resolve(__dirname, "..", "dist");
+const hasBuiltFrontend = fs.existsSync(path.join(distPath, "index.html"));
 
 function isAllowedOrigin(origin) {
   if (!origin) return true;
@@ -2861,6 +2868,19 @@ app.post("/api/webhooks/shipping/:storeId/:provider", asyncHandler(async (req, r
 
   res.json({ ok: true });
 }));
+
+if (hasBuiltFrontend) {
+  app.use(express.static(distPath));
+
+  app.get("*", (req, res, next) => {
+    if (req.path.startsWith("/api/")) {
+      next();
+      return;
+    }
+
+    res.sendFile(path.join(distPath, "index.html"));
+  });
+}
 
 app.use((error, _req, res, _next) => {
   console.error(error);

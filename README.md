@@ -33,6 +33,8 @@ Arquivos prontos no projeto:
 
 - PM2: [ecosystem.config.cjs](/c:/Users/ADM/Desktop/E-commerce/vexor-saas/ecosystem.config.cjs)
 - Nginx: [nginx.vexortech.cloud.conf](/c:/Users/ADM/Desktop/E-commerce/vexor-saas/deploy/nginx.vexortech.cloud.conf)
+- Docker: [Dockerfile](/c:/Users/ADM/Desktop/E-commerce/vexor-saas/Dockerfile)
+- Docker Compose: [docker-compose.yml](/c:/Users/ADM/Desktop/E-commerce/vexor-saas/docker-compose.yml)
 
 Fluxo sugerido:
 
@@ -43,6 +45,29 @@ Fluxo sugerido:
 5. Configure o Nginx com o arquivo de exemplo em `deploy/nginx.vexortech.cloud.conf`.
 6. Inicie a API com `pm2 start ecosystem.config.cjs`.
 7. Ative HTTPS com Certbot para `vexortech.cloud` e `*.vexortech.cloud`.
+
+## Deploy via Docker no GitHub
+
+O projeto ja esta preparado para subir por Docker direto do repositorio, sem ajuste de codigo:
+
+- o container compila o frontend
+- aplica a migracao do banco ao iniciar
+- garante seed inicial do master
+- sobe a API e entrega o frontend pelo mesmo processo
+
+Arquivos usados:
+
+- [Dockerfile](/c:/Users/ADM/Desktop/E-commerce/vexor-saas/Dockerfile)
+- [docker-compose.yml](/c:/Users/ADM/Desktop/E-commerce/vexor-saas/docker-compose.yml)
+- [docker-entrypoint.sh](/c:/Users/ADM/Desktop/E-commerce/vexor-saas/docker-entrypoint.sh)
+
+No servidor, basta:
+
+1. clonar o repositorio
+2. criar `.env.mariadb`
+3. rodar `docker compose up -d --build`
+
+Depois disso, publique via Nginx reverso apontando para `127.0.0.1:3001`.
 
 ## Banco de dados
 
