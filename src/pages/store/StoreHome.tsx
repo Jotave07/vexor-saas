@@ -153,7 +153,7 @@ const StoreHome = () => {
                       <div className="aspect-square rounded-[22px] bg-slate-100" />
                     )}
                     <div className="space-y-2">
-                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">{categoryMap.get(heroProduct.category_id) || "Departamento"}</p>
+                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">{String(categoryMap.get(heroProduct.category_id) || "Departamento")}</p>
                       <h2 className="font-heading text-2xl font-bold">{heroProduct.name}</h2>
                       <p className="line-clamp-3 text-sm leading-6 text-slate-500">{heroProduct.description || "Produto estrategico com disponibilidade para operacao comercial."}</p>
                     </div>
