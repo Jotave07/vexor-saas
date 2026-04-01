@@ -64,7 +64,7 @@ Arquivos usados:
 No servidor, basta:
 
 1. clonar o repositorio
-2. criar `.env.mariadb`
+2. definir as variaveis de ambiente no painel da plataforma
 3. rodar `docker compose up -d --build`
 
 Depois disso, publique via Nginx reverso apontando para `127.0.0.1:3001`.
