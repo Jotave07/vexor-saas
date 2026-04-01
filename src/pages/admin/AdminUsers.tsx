@@ -1,8 +1,14 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2 } from "lucide-react";
+import { Loader2, Users } from "lucide-react";
 import { api } from "@/lib/api";
+
+const roleLabels: Record<string, { label: string; className: string }> = {
+  master_admin: { label: "Admin Master", className: "bg-primary/10 text-primary" },
+  company_admin: { label: "Admin Empresa", className: "bg-accent/10 text-accent" },
+  company_staff: { label: "Equipe", className: "bg-secondary text-secondary-foreground" },
+};
 
 const AdminUsers = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -14,24 +20,14 @@ const AdminUsers = () => {
       setUsers(response.users || []);
       setLoading(false);
     };
-
-    fetchUsers().catch((error) => {
-      console.error(error);
-      setLoading(false);
-    });
+    fetchUsers().catch(() => setLoading(false));
   }, []);
-
-  const roleLabels: Record<string, string> = {
-    master_admin: "Admin Master",
-    company_admin: "Admin Empresa",
-    company_staff: "Equipe",
-  };
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-heading font-bold text-foreground">Usuarios</h1>
-        <p className="text-muted-foreground">Todos os usuarios da plataforma.</p>
+      <div className="page-header">
+        <h1>Usuários</h1>
+        <p>Todos os usuários da plataforma ({users.length} usuários).</p>
       </div>
 
       <Card className="border-border/50 glass-card">
@@ -40,30 +36,45 @@ const AdminUsers = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Nome</TableHead>
-                <TableHead>Empresa</TableHead>
+                <TableHead className="hidden sm:table-cell">Empresa</TableHead>
                 <TableHead>Perfil</TableHead>
-                <TableHead>Criado em</TableHead>
+                <TableHead className="hidden md:table-cell">Criado em</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
+                <TableRow><TableCell colSpan={4} className="py-12 text-center"><Loader2 className="mx-auto h-5 w-5 animate-spin text-muted-foreground" /></TableCell></TableRow>
+              ) : users.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="py-8 text-center">
-                    <Loader2 className="mx-auto h-5 w-5 animate-spin" />
+                  <TableCell colSpan={4}>
+                    <div className="empty-state py-12">
+                      <Users className="empty-state-icon" />
+                      <p className="empty-state-title">Nenhum usuário</p>
+                      <p className="empty-state-description">Usuários são criados ao cadastrar empresas.</p>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : users.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.full_name || "-"}</TableCell>
-                  <TableCell className="text-muted-foreground">{user.company_name || "-"}</TableCell>
                   <TableCell>
-                    {user.roles?.map((role: string) => (
-                      <span key={role} className="mr-1 rounded-full bg-primary/10 px-2 py-1 text-xs text-primary">
-                        {roleLabels[role] || role}
-                      </span>
-                    ))}
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                        {user.full_name?.[0]?.toUpperCase() || "U"}
+                      </div>
+                      <span className="font-medium text-sm">{user.full_name || "-"}</span>
+                    </div>
                   </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
+                  <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">{user.company_name || "-"}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {user.roles?.map((role: string) => (
+                        <span key={role} className={`rounded-full px-2 py-0.5 text-xs font-medium ${roleLabels[role]?.className || "bg-muted text-muted-foreground"}`}>
+                          {roleLabels[role]?.label || role}
+                        </span>
+                      ))}
+                    </div>
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell text-xs text-muted-foreground">
                     {new Date(user.created_at).toLocaleDateString("pt-BR")}
                   </TableCell>
                 </TableRow>
