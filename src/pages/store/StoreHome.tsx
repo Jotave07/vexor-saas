@@ -314,7 +314,7 @@ const StoreHome = () => {
             </div>
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
               {catalogProducts.map((product: any) => (
-                <StoreProductCard key={product.id} slug={slug || ""} product={product} categoryName={categoryMap.get(product.category_id)} onAddToCart={handleAddToCart} />
+                <StoreProductCard key={product.id} slug={slug || ""} product={product} categoryName={String(categoryMap.get(product.category_id) || "")} onAddToCart={handleAddToCart} />
               ))}
             </div>
           </section>
