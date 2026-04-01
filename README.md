@@ -20,12 +20,24 @@ Observacao importante:
 
 Use `.env.mariadb` com base em `.env.mariadb.example`.
 
-Campos importantes para producao:
+Bloco recomendado para producao:
 
-- `APP_DOMAIN=vexortech.cloud`
-- `VITE_APP_DOMAIN=vexortech.cloud`
-- `FRONTEND_URL=https://nexshop.vexortech.cloud`
-- `API_PUBLIC_URL=https://nexshop.vexortech.cloud/api`
+```env
+DB_HOST=187.77.54.38
+DB_PORT=32768
+DB_NAME=Vexor_Ecommerce
+DB_USER=VITOR
+DB_PASSWORD=v3x0r
+API_PORT=3001
+APP_DOMAIN=vexortech.cloud
+VITE_APP_DOMAIN=vexortech.cloud
+FRONTEND_URL=https://nexshop.vexortech.cloud
+API_PUBLIC_URL=https://nexshop.vexortech.cloud/api
+JWT_SECRET=COLOQUE_UM_SEGREDO_FORTE
+APP_ENCRYPTION_KEY=COLOQUE_UMA_CHAVE_FORTE
+MASTER_EMAIL=admin@vexor.local
+MASTER_PASSWORD=Vexor@123456
+```
 
 ## Deploy no VPS
 
