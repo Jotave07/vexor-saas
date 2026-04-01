@@ -46,9 +46,9 @@ const StoreCheckout = () => {
 
   useEffect(() => {
     if (!slug) return;
-    api.get(`/api/public/stores/${slug}/catalog`).then((response) => {
+    api.get<any>(`/api/public/stores/${slug}/catalog`).then((response: any) => {
       setCatalog(response);
-      const defaultMethod = response.settings?.payment_methods?.find((method: any) => method.enabled !== false)?.code;
+      const defaultMethod = (response as any).settings?.payment_methods?.find((method: any) => method.enabled !== false)?.code;
       if (defaultMethod) setForm((current) => ({ ...current, paymentMethod: defaultMethod }));
     }).catch(console.error);
   }, [slug]);

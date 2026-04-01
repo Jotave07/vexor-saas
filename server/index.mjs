@@ -2590,6 +2590,87 @@ app.put("/api/public/stores/:slug/account/password", requireCustomerAuth, asyncH
   res.json({ ok: true });
 }));
 
+// ── AbacatePay Webhook ─────────────────────────────────────────────────────────
+
+app.post("/api/webhooks/abacatepay/:storeId", asyncHandler(async (req, res) => {
+  const integration = await getStoreIntegration(req.params.storeId, "abacatepay");
+  const incomingSecret = String(req.query.webhookSecret || "");
+  const eventId = generateId();
+
+  await query(
+    `
+      INSERT INTO webhook_events (id, store_id, provider, event_type, external_id, payload, status, created_at)
+      VALUES (?, ?, 'abacatepay', ?, ?, ?, 'received', NOW())
+    `,
+    [eventId, req.params.storeId, String(req.body?.devMode != null ? "billing_update" : "unknown"), String(req.body?.data?.billing?.id || req.body?.billing?.id || ""), JSON.stringify(req.body || {})],
+  );
+
+  if (!integration?.is_enabled || !integration.public_config?.webhookSecret || integration.public_config.webhookSecret !== incomingSecret) {
+    await query("UPDATE webhook_events SET status = 'ignored', error_message = ?, processed_at = NOW() WHERE id = ?", ["Secret de webhook invalido.", eventId]);
+    return res.status(401).json({ message: "Webhook nao autorizado." });
+  }
+
+  const billing = req.body?.data?.billing || req.body?.billing || req.body?.data || {};
+  const billingId = String(billing.id || "");
+  const externalId = String(billing.externalId || "");
+
+  if (!billingId && !externalId) {
+    await query("UPDATE webhook_events SET status = 'ignored', error_message = ?, processed_at = NOW() WHERE id = ?", ["Cobranca nao identificada no payload.", eventId]);
+    return res.json({ ok: true });
+  }
+
+  const orderId = externalId || null;
+  const order = orderId ? await queryOne("SELECT * FROM orders WHERE id = ? AND store_id = ? LIMIT 1", [orderId, req.params.storeId]) : null;
+  const payment = order ? await queryOne("SELECT * FROM payments WHERE order_id = ? AND store_id = ? LIMIT 1", [order.id, order.store_id]) : null;
+
+  if (!order || !payment) {
+    await query("UPDATE webhook_events SET status = 'ignored', error_message = ?, processed_at = NOW() WHERE id = ?", ["Pedido nao localizado para o webhook AbacatePay.", eventId]);
+    return res.json({ ok: true });
+  }
+
+  const nextPaymentStatus = paymentStatusFromAbacatePay(billing.status);
+  const nextOrderStatus = orderStatusFromPaymentStatus(nextPaymentStatus);
+
+  await withTransaction(async (connection) => {
+    await connection.query(
+      "UPDATE payments SET status = ?, gateway_reference = ?, updated_at = NOW() WHERE id = ?",
+      [nextPaymentStatus, billingId, payment.id],
+    );
+    await connection.query(
+      "UPDATE orders SET payment_status = ?, status = ?, updated_at = NOW() WHERE id = ?",
+      [nextPaymentStatus, nextOrderStatus, order.id],
+    );
+    await connection.query(
+      `
+        INSERT INTO payment_transactions (id, payment_id, order_id, store_id, provider, transaction_type, external_id, external_reference, status, amount, payload, created_at, updated_at)
+        VALUES (?, ?, ?, ?, 'abacatepay', 'webhook_update', ?, ?, ?, ?, ?, NOW(), NOW())
+      `,
+      [generateId(), payment.id, order.id, order.store_id, billingId, order.id, billing.status || "unknown", Number(billing.amount ? billing.amount / 100 : payment.amount), JSON.stringify(billing)],
+    );
+    await appendOrderStatusHistory(connection, {
+      orderId: order.id,
+      fromStatus: order.status,
+      toStatus: nextOrderStatus,
+      fromPaymentStatus: order.payment_status,
+      toPaymentStatus: nextPaymentStatus,
+      note: `Webhook AbacatePay: ${billing.status}`,
+    });
+    await logIntegration(connection, {
+      storeId: order.store_id,
+      provider: "abacatepay",
+      direction: "inbound",
+      status: "success",
+      summary: `Webhook processado com status ${billing.status}.`,
+      payload: billing,
+    });
+    await connection.query("UPDATE webhook_events SET status = 'processed', processed_at = NOW() WHERE id = ?", [eventId]);
+  });
+
+  res.json({ ok: true });
+}));
+
+// ── Mercado Pago Webhook (legacy) ─────────────────────────────────────────────
+
 app.post("/api/webhooks/mercadopago/:storeId", asyncHandler(async (req, res) => {
   const integration = await getStoreIntegration(req.params.storeId, "mercado_pago");
   const incomingToken = String(req.query.token || "");

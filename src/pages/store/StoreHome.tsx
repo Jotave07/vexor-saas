@@ -25,9 +25,9 @@ const StoreHome = () => {
     if (!slug) return;
     setLoading(true);
     setCatalogError("");
-    api.get(`/api/public/stores/${slug}/catalog`)
-      .then(setCatalog)
-      .catch((error) => {
+    api.get<any>(`/api/public/stores/${slug}/catalog`)
+      .then((data: any) => setCatalog(data))
+      .catch((error: any) => {
         console.error(error);
         setCatalogError("Nao foi possivel carregar a loja agora. Verifique se a API esta em execucao.");
       })
