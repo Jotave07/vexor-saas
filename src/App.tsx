@@ -31,6 +31,14 @@ import ClientCustomers from "./pages/panel/ClientCustomers";
 import ClientCoupons from "./pages/panel/ClientCoupons";
 import ClientBanners from "./pages/panel/ClientBanners";
 import ClientSettings from "./pages/panel/ClientSettings";
+import ClientOperations from "./pages/panel/ClientOperations";
+import StoreHome from "./pages/store/StoreHome";
+import StoreCategory from "./pages/store/StoreCategory";
+import StoreProduct from "./pages/store/StoreProduct";
+import StoreCart from "./pages/store/StoreCart";
+import StoreCheckout from "./pages/store/StoreCheckout";
+import StoreAuth from "./pages/store/StoreAuth";
+import StoreAccount from "./pages/store/StoreAccount";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +55,13 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/unauthorized" element={<Unauthorized />} />
+            <Route path="/shop/:slug" element={<StoreHome />} />
+            <Route path="/shop/:slug/category/:categoryId" element={<StoreCategory />} />
+            <Route path="/shop/:slug/product/:productId" element={<StoreProduct />} />
+            <Route path="/shop/:slug/cart" element={<StoreCart />} />
+            <Route path="/shop/:slug/checkout" element={<StoreCheckout />} />
+            <Route path="/shop/:slug/auth" element={<StoreAuth />} />
+            <Route path="/shop/:slug/account" element={<StoreAccount />} />
 
             {/* Dashboard redirect */}
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
@@ -71,6 +86,7 @@ const App = () => (
               <Route path="customers" element={<ClientCustomers />} />
               <Route path="coupons" element={<ClientCoupons />} />
               <Route path="banners" element={<ClientBanners />} />
+              <Route path="operations" element={<ClientOperations />} />
               <Route path="settings" element={<ClientSettings />} />
             </Route>
 

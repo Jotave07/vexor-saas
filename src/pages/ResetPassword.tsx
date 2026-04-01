@@ -1,55 +1,61 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ShoppingBag, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { api } from "@/lib/api";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isRecovery, setIsRecovery] = useState(false);
   const navigate = useNavigate();
 
+  const token = useMemo(() => new URLSearchParams(window.location.search).get("token"), []);
+
   useEffect(() => {
-    const hash = window.location.hash;
-    if (hash.includes("type=recovery")) {
-      setIsRecovery(true);
+    if (!token) {
+      toast({ title: "Link invalido", description: "Token de recuperacao ausente.", variant: "destructive" });
     }
-  }, []);
+  }, [token]);
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!token) return;
+
     if (password !== confirmPassword) {
-      toast({ title: "Erro", description: "As senhas não coincidem.", variant: "destructive" });
+      toast({ title: "Erro", description: "As senhas nao coincidem.", variant: "destructive" });
       return;
     }
     if (password.length < 6) {
       toast({ title: "Erro", description: "A senha deve ter pelo menos 6 caracteres.", variant: "destructive" });
       return;
     }
+
     setIsLoading(true);
-    const { error } = await supabase.auth.updateUser({ password });
-    setIsLoading(false);
-    if (error) {
-      toast({ title: "Erro", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Senha atualizada!", description: "Você será redirecionado." });
-      setTimeout(() => navigate("/login"), 2000);
+    try {
+      await api.post("/api/auth/reset-password", { token, password });
+      toast({ title: "Senha atualizada", description: "Voce sera redirecionado para o login." });
+      setTimeout(() => navigate("/login"), 1500);
+    } catch (error) {
+      toast({ title: "Erro", description: (error as Error).message, variant: "destructive" });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  if (!isRecovery) {
+  if (!token) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background p-4">
         <Card className="w-full max-w-md glass-card">
           <CardContent className="p-6 text-center">
-            <p className="text-muted-foreground">Link de recuperação inválido ou expirado.</p>
-            <Button className="mt-4" onClick={() => navigate("/login")}>Voltar ao Login</Button>
+            <p className="text-muted-foreground">Link de recuperacao invalido ou expirado.</p>
+            <Button className="mt-4" onClick={() => navigate("/login")}>
+              Voltar ao Login
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -58,8 +64,8 @@ const ResetPassword = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md glass-card border-border/50">
-        <CardHeader className="text-center space-y-4">
+      <Card className="w-full max-w-md border-border/50 glass-card">
+        <CardHeader className="space-y-4 text-center">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-primary">
             <ShoppingBag className="h-7 w-7 text-primary-foreground" />
           </div>

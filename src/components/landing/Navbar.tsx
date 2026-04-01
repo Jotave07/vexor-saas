@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,7 +8,7 @@ const navLinks = [
   { label: "Como Funciona", href: "#como-funciona" },
   { label: "Recursos", href: "#recursos" },
   { label: "Nichos", href: "#nichos" },
-  { label: "Integrações", href: "#integracoes" },
+  { label: "Integracoes", href: "#integracoes" },
   { label: "Planos", href: "#planos" },
   { label: "Contato", href: "#contato" },
 ];
@@ -22,7 +23,7 @@ const Navbar = () => {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-primary">
             <ShoppingBag className="h-4 w-4 text-primary-foreground" />
           </div>
-          NexShop
+          VEXOR Sistemas
         </a>
 
         <div className="hidden items-center gap-8 md:flex">
@@ -38,18 +39,15 @@ const Navbar = () => {
         </div>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-            Login
+          <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+            <Link to="/login">Login</Link>
           </Button>
           <Button size="sm" className="bg-gradient-primary text-primary-foreground hover:opacity-90">
-            Começar Agora
+            Solicitar Apresentacao
           </Button>
         </div>
 
-        <button
-          className="md:hidden text-foreground"
-          onClick={() => setOpen(!open)}
-        >
+        <button className="md:hidden text-foreground" onClick={() => setOpen(!open)}>
           {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </div>
@@ -73,8 +71,8 @@ const Navbar = () => {
                   {link.label}
                 </a>
               ))}
-              <Button className="bg-gradient-primary text-primary-foreground mt-2 w-full">
-                Começar Agora
+              <Button className="mt-2 w-full bg-gradient-primary text-primary-foreground">
+                Solicitar Apresentacao
               </Button>
             </div>
           </motion.div>

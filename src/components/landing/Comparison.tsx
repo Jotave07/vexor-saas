@@ -2,13 +2,13 @@ import { motion } from "framer-motion";
 import { Check, X } from "lucide-react";
 
 const rows = [
-  { feature: "Tempo para lançar", diy: "3 a 6 meses", us: "7 a 15 dias" },
+  { feature: "Tempo para lancar", diy: "3 a 6 meses", us: "7 a 15 dias" },
   { feature: "Investimento inicial", diy: "R$15.000+", us: "A partir de R$997" },
-  { feature: "Integrações de pagamento", diy: false, us: true },
-  { feature: "Cálculo de frete automático", diy: false, us: true },
+  { feature: "Integracoes de pagamento", diy: false, us: true },
+  { feature: "Calculo de frete automatico", diy: false, us: true },
   { feature: "Painel administrativo", diy: false, us: true },
-  { feature: "Personalização por nicho", diy: false, us: true },
-  { feature: "Suporte técnico incluso", diy: false, us: true },
+  { feature: "Personalizacao por nicho", diy: false, us: true },
+  { feature: "Suporte tecnico incluso", diy: false, us: true },
   { feature: "Pronto para vender", diy: false, us: true },
 ];
 
@@ -20,13 +20,13 @@ const Comparison = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="mb-16 text-center"
         >
-          <span className="text-sm font-medium text-primary uppercase tracking-wider">Comparativo</span>
-          <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold mt-3 mb-4">
-            Por que escolher a <span className="text-gradient-primary">NexShop?</span>
+          <span className="text-sm font-medium uppercase tracking-wider text-primary">Comparativo</span>
+          <h2 className="mt-3 mb-4 font-heading text-3xl font-bold sm:text-4xl lg:text-5xl">
+            Por que escolher a <span className="text-gradient-primary">VEXOR Sistemas?</span>
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
             Compare criar do zero versus receber sua loja profissional pronta.
           </p>
         </motion.div>
@@ -35,27 +35,22 @@ const Comparison = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="glass-card rounded-2xl overflow-hidden"
+          className="glass-card overflow-hidden rounded-2xl"
         >
-          <div className="grid grid-cols-3 text-center border-b border-border/50">
-            <div className="p-4 md:p-6 text-sm font-medium text-muted-foreground">Funcionalidade</div>
-            <div className="p-4 md:p-6 text-sm font-medium text-muted-foreground border-x border-border/50">
+          <div className="grid grid-cols-3 border-b border-border/50 text-center">
+            <div className="p-4 text-sm font-medium text-muted-foreground md:p-6">Funcionalidade</div>
+            <div className="border-x border-border/50 p-4 text-sm font-medium text-muted-foreground md:p-6">
               Criar do Zero
             </div>
-            <div className="p-4 md:p-6 bg-primary/5">
-              <span className="text-sm font-bold text-gradient-primary">NexShop</span>
+            <div className="bg-primary/5 p-4 md:p-6">
+              <span className="text-sm font-bold text-gradient-primary">VEXOR Sistemas</span>
             </div>
           </div>
 
           {rows.map((row, i) => (
-            <div
-              key={i}
-              className="grid grid-cols-3 text-center border-b border-border/30 last:border-0"
-            >
-              <div className="p-4 md:p-5 text-sm text-foreground text-left pl-6">
-                {row.feature}
-              </div>
-              <div className="p-4 md:p-5 flex items-center justify-center border-x border-border/30">
+            <div key={i} className="grid grid-cols-3 border-b border-border/30 text-center last:border-0">
+              <div className="p-4 pl-6 text-left text-sm text-foreground md:p-5">{row.feature}</div>
+              <div className="flex items-center justify-center border-x border-border/30 p-4 md:p-5">
                 {typeof row.diy === "string" ? (
                   <span className="text-sm text-muted-foreground">{row.diy}</span>
                 ) : row.diy ? (
@@ -64,7 +59,7 @@ const Comparison = () => {
                   <X className="h-5 w-5 text-destructive/60" />
                 )}
               </div>
-              <div className="p-4 md:p-5 flex items-center justify-center bg-primary/5">
+              <div className="flex items-center justify-center bg-primary/5 p-4 md:p-5">
                 {typeof row.us === "string" ? (
                   <span className="text-sm font-semibold text-accent">{row.us}</span>
                 ) : row.us ? (

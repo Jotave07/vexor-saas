@@ -44,7 +44,7 @@ const AdminLayout = () => {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-primary">
               <ShoppingBag className="h-4 w-4 text-primary-foreground" />
             </div>
-            NexShop
+            VEXOR Sistemas
           </Link>
         )}
         {!isMobile && (

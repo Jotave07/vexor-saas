@@ -3,7 +3,7 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
   LayoutDashboard, Package, FolderOpen, ShoppingCart, Users,
-  Tag, Image, Settings, LogOut, ShoppingBag, Menu, X, ChevronLeft, ChevronRight
+  Tag, Image, Settings, LogOut, ShoppingBag, Menu, X, ChevronLeft, ChevronRight, Truck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -15,6 +15,7 @@ const navItems = [
   { icon: Users, label: "Clientes", path: "/panel/customers" },
   { icon: Tag, label: "Cupons", path: "/panel/coupons" },
   { icon: Image, label: "Banners", path: "/panel/banners" },
+  { icon: Truck, label: "Operacao", path: "/panel/operations" },
   { icon: Settings, label: "Configurações", path: "/panel/settings" },
 ];
 

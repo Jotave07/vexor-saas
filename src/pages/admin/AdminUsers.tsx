@@ -1,20 +1,24 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Loader2 } from "lucide-react";
+import { api } from "@/lib/api";
 
 const AdminUsers = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetch = async () => {
-      const { data } = await supabase.from("profiles").select("*, user_roles(role), companies(name)");
-      setUsers(data || []);
+    const fetchUsers = async () => {
+      const response = await api.get<{ users: any[] }>("/api/admin/users");
+      setUsers(response.users || []);
       setLoading(false);
     };
-    fetch();
+
+    fetchUsers().catch((error) => {
+      console.error(error);
+      setLoading(false);
+    });
   }, []);
 
   const roleLabels: Record<string, string> = {
@@ -26,10 +30,11 @@ const AdminUsers = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-heading font-bold text-foreground">Usuários</h1>
-        <p className="text-muted-foreground">Todos os usuários da plataforma</p>
+        <h1 className="text-2xl font-heading font-bold text-foreground">Usuarios</h1>
+        <p className="text-muted-foreground">Todos os usuarios da plataforma.</p>
       </div>
-      <Card className="glass-card border-border/50">
+
+      <Card className="border-border/50 glass-card">
         <CardContent className="p-0">
           <Table>
             <TableHeader>
@@ -42,19 +47,25 @@ const AdminUsers = () => {
             </TableHeader>
             <TableBody>
               {loading ? (
-                <TableRow><TableCell colSpan={4} className="text-center py-8"><Loader2 className="h-5 w-5 animate-spin mx-auto" /></TableCell></TableRow>
-              ) : users.map((u) => (
-                <TableRow key={u.id}>
-                  <TableCell className="font-medium">{u.full_name || "—"}</TableCell>
-                  <TableCell className="text-muted-foreground">{u.companies?.name || "—"}</TableCell>
+                <TableRow>
+                  <TableCell colSpan={4} className="py-8 text-center">
+                    <Loader2 className="mx-auto h-5 w-5 animate-spin" />
+                  </TableCell>
+                </TableRow>
+              ) : users.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell className="font-medium">{user.full_name || "-"}</TableCell>
+                  <TableCell className="text-muted-foreground">{user.company_name || "-"}</TableCell>
                   <TableCell>
-                    {u.user_roles?.map((r: any) => (
-                      <span key={r.role} className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary mr-1">
-                        {roleLabels[r.role] || r.role}
+                    {user.roles?.map((role: string) => (
+                      <span key={role} className="mr-1 rounded-full bg-primary/10 px-2 py-1 text-xs text-primary">
+                        {roleLabels[role] || role}
                       </span>
                     ))}
                   </TableCell>
-                  <TableCell className="text-muted-foreground text-sm">{new Date(u.created_at).toLocaleDateString("pt-BR")}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {new Date(user.created_at).toLocaleDateString("pt-BR")}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
