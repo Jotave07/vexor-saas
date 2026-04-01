@@ -25,9 +25,14 @@ services:
       - MASTER_PASSWORD
     labels:
       - traefik.enable=true
-      - traefik.http.routers.vexor-saas.rule=Host(`vexortech.cloud`) || Host(`nexshop.vexortech.cloud`) || HostRegexp(`^[a-z0-9-]+\\.vexortech\\.cloud$`)
-      - traefik.http.routers.vexor-saas.entrypoints=websecure
-      - traefik.http.routers.vexor-saas.tls.certresolver=letsencrypt
+      - traefik.http.routers.vexor-main.rule=Host(`vexortech.cloud`) || Host(`nexshop.vexortech.cloud`)
+      - traefik.http.routers.vexor-main.entrypoints=websecure
+      - traefik.http.routers.vexor-main.tls.certresolver=letsencrypt
+      - traefik.http.routers.vexor-main.priority=100
+      - traefik.http.routers.vexor-tenant.rule=HostRegexp(`^[a-z0-9-]+\\.vexortech\\.cloud$`)
+      - traefik.http.routers.vexor-tenant.entrypoints=websecure
+      - traefik.http.routers.vexor-tenant.tls.certresolver=letsencrypt
+      - traefik.http.routers.vexor-tenant.priority=10
       - traefik.http.services.vexor-saas.loadbalancer.server.port=3001
     networks:
       - traefik-proxy
