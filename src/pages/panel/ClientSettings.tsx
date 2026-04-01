@@ -35,11 +35,18 @@ const ClientSettings = () => {
     checkout: "{}",
     shipping: "{}",
     paymentMethods: "[]",
+    // AbacatePay (primary)
+    abacatePayEnabled: false,
+    abacatePayMode: "production",
+    abacatePayApiKey: "",
+    abacatePayWebhookSecret: "",
+    // Mercado Pago (secondary/legacy)
     mercadoPagoEnabled: false,
     mercadoPagoMode: "production",
     mercadoPagoPublicKey: "",
     mercadoPagoAccessToken: "",
     mercadoPagoWebhookToken: "",
+    // Melhor Envio
     melhorEnvioEnabled: false,
     melhorEnvioMode: "sandbox",
     melhorEnvioAccessToken: "",
@@ -73,6 +80,10 @@ const ClientSettings = () => {
           checkout: stringify(response.settings?.checkout_settings),
           shipping: stringify(response.settings?.shipping_settings),
           paymentMethods: stringify(response.settings?.payment_methods || []),
+          abacatePayEnabled: Boolean(response.integrations?.abacatepay?.enabled),
+          abacatePayMode: response.integrations?.abacatepay?.mode || "production",
+          abacatePayApiKey: response.integrations?.abacatepay?.apiKey || "",
+          abacatePayWebhookSecret: response.integrations?.abacatepay?.webhookSecret || "",
           mercadoPagoEnabled: Boolean(response.integrations?.mercado_pago?.enabled),
           mercadoPagoMode: response.integrations?.mercado_pago?.mode || "production",
           mercadoPagoPublicKey: response.integrations?.mercado_pago?.publicKey || "",
@@ -124,6 +135,12 @@ const ClientSettings = () => {
           payment_methods: JSON.parse(form.paymentMethods),
         },
         integrations: {
+          abacatepay: {
+            enabled: form.abacatePayEnabled,
+            mode: form.abacatePayMode,
+            apiKey: form.abacatePayApiKey,
+            webhookSecret: form.abacatePayWebhookSecret,
+          },
           mercado_pago: {
             enabled: form.mercadoPagoEnabled,
             mode: form.mercadoPagoMode,
@@ -153,7 +170,7 @@ const ClientSettings = () => {
     setTestingPayment(true);
     try {
       const response = await api.post<any>("/api/client/settings/test-payment");
-      toast({ title: "Mercado Pago validado", description: response.account?.email || "Credenciais validas." });
+      toast({ title: `${response.provider || "Pagamento"} validado`, description: response.result?.ok ? "Conexao bem-sucedida." : "Credenciais validas." });
     } catch (error) {
       toast({ title: "Falha no teste", description: (error as Error).message, variant: "destructive" });
     } finally {
@@ -165,7 +182,7 @@ const ClientSettings = () => {
     setTestingShipping(true);
     try {
       const response = await api.post<any>("/api/client/settings/test-shipping", { cep: form.testCep });
-      toast({ title: "CEP validado", description: `${response.address.city}/${response.address.state}` });
+      toast({ title: "CEP validado", description: `${response.result?.address?.city || response.address?.city || ""}/${response.result?.address?.state || response.address?.state || ""}` });
     } catch (error) {
       toast({ title: "Falha no teste", description: (error as Error).message, variant: "destructive" });
     } finally {
@@ -188,14 +205,23 @@ const ClientSettings = () => {
         <p className="text-muted-foreground">Personalize sua loja com dados persistidos no banco.</p>
       </div>
 
+      {/* Loja */}
       <Card className="border-border/50 glass-card">
         <CardContent className="grid gap-4 p-6 md:grid-cols-2">
+          <div className="md:col-span-2"><h2 className="font-heading text-lg font-semibold text-foreground">Dados da Loja</h2></div>
           <div className="space-y-2"><Label>Nome da Loja</Label><Input value={form.storeName} onChange={(e) => setForm({ ...form, storeName: e.target.value })} /></div>
           <div className="space-y-2"><Label>Slug</Label><Input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} /></div>
           <div className="space-y-2"><Label>Dominio</Label><Input value={form.domain} onChange={(e) => setForm({ ...form, domain: e.target.value })} /></div>
           <div className="space-y-2"><Label>Logo URL</Label><Input value={form.logoUrl} onChange={(e) => setForm({ ...form, logoUrl: e.target.value })} /></div>
           <div className="space-y-2 md:col-span-2"><Label>Favicon URL</Label><Input value={form.faviconUrl} onChange={(e) => setForm({ ...form, faviconUrl: e.target.value })} /></div>
           <div className="space-y-2 md:col-span-2"><Label>Cores do tema (JSON)</Label><Textarea rows={5} value={form.themeColors} onChange={(e) => setForm({ ...form, themeColors: e.target.value })} /></div>
+        </CardContent>
+      </Card>
+
+      {/* Conteudo */}
+      <Card className="border-border/50 glass-card">
+        <CardContent className="grid gap-4 p-6 md:grid-cols-2">
+          <div className="md:col-span-2"><h2 className="font-heading text-lg font-semibold text-foreground">Conteudo e SEO</h2></div>
           <div className="space-y-2"><Label>SEO (JSON)</Label><Textarea rows={6} value={form.seo} onChange={(e) => setForm({ ...form, seo: e.target.value })} /></div>
           <div className="space-y-2"><Label>Politicas (JSON)</Label><Textarea rows={6} value={form.policies} onChange={(e) => setForm({ ...form, policies: e.target.value })} /></div>
           <div className="space-y-2"><Label>Redes sociais (JSON)</Label><Textarea rows={6} value={form.social} onChange={(e) => setForm({ ...form, social: e.target.value })} /></div>
@@ -209,21 +235,83 @@ const ClientSettings = () => {
           <div className="space-y-2"><Label>Checkout (JSON)</Label><Textarea rows={6} value={form.checkout} onChange={(e) => setForm({ ...form, checkout: e.target.value })} /></div>
           <div className="space-y-2"><Label>Frete (JSON)</Label><Textarea rows={6} value={form.shipping} onChange={(e) => setForm({ ...form, shipping: e.target.value })} /></div>
           <div className="space-y-2 md:col-span-2"><Label>Metodos de pagamento (JSON)</Label><Textarea rows={5} value={form.paymentMethods} onChange={(e) => setForm({ ...form, paymentMethods: e.target.value })} /></div>
+        </CardContent>
+      </Card>
+
+      {/* AbacatePay - Provider Principal */}
+      <Card className="border-border/50 glass-card">
+        <CardContent className="grid gap-4 p-6 md:grid-cols-2">
+          <div className="md:col-span-2"><h2 className="font-heading text-lg font-semibold text-foreground">AbacatePay (Gateway Principal)</h2></div>
+          <div className="space-y-2">
+            <Label>AbacatePay ativo</Label>
+            <select className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={form.abacatePayEnabled ? "true" : "false"} onChange={(e) => setForm({ ...form, abacatePayEnabled: e.target.value === "true" })}>
+              <option value="true">Sim</option>
+              <option value="false">Nao</option>
+            </select>
+          </div>
+          <div className="space-y-2">
+            <Label>Modo</Label>
+            <select className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={form.abacatePayMode} onChange={(e) => setForm({ ...form, abacatePayMode: e.target.value })}>
+              <option value="production">Producao</option>
+              <option value="sandbox">Sandbox / Teste</option>
+            </select>
+          </div>
+          <div className="space-y-2 md:col-span-2"><Label>API Key</Label><Input type="password" value={form.abacatePayApiKey} onChange={(e) => setForm({ ...form, abacatePayApiKey: e.target.value })} placeholder="Chave de API da AbacatePay" /></div>
+          <div className="space-y-2 md:col-span-2"><Label>Webhook Secret</Label><Input value={form.abacatePayWebhookSecret} onChange={(e) => setForm({ ...form, abacatePayWebhookSecret: e.target.value })} placeholder="Secret para validacao de webhooks" /></div>
+        </CardContent>
+      </Card>
+
+      {/* Mercado Pago - Secundário */}
+      <Card className="border-border/50 glass-card">
+        <CardContent className="grid gap-4 p-6 md:grid-cols-2">
+          <div className="md:col-span-2"><h2 className="font-heading text-lg font-semibold text-foreground">Mercado Pago (Secundario)</h2></div>
           <div className="space-y-2"><Label>Mercado Pago ativo</Label><Input value={form.mercadoPagoEnabled ? "true" : "false"} onChange={(e) => setForm({ ...form, mercadoPagoEnabled: e.target.value === "true" })} /></div>
-          <div className="space-y-2"><Label>Mercado Pago modo</Label><Input value={form.mercadoPagoMode} onChange={(e) => setForm({ ...form, mercadoPagoMode: e.target.value })} /></div>
-          <div className="space-y-2"><Label>Mercado Pago public key</Label><Input value={form.mercadoPagoPublicKey} onChange={(e) => setForm({ ...form, mercadoPagoPublicKey: e.target.value })} /></div>
-          <div className="space-y-2"><Label>Mercado Pago access token</Label><Input value={form.mercadoPagoAccessToken} onChange={(e) => setForm({ ...form, mercadoPagoAccessToken: e.target.value })} /></div>
-          <div className="space-y-2 md:col-span-2"><Label>Webhook token Mercado Pago</Label><Input value={form.mercadoPagoWebhookToken} onChange={(e) => setForm({ ...form, mercadoPagoWebhookToken: e.target.value })} /></div>
-          <div className="space-y-2"><Label>Melhor Envio ativo</Label><Input value={form.melhorEnvioEnabled ? "true" : "false"} onChange={(e) => setForm({ ...form, melhorEnvioEnabled: e.target.value === "true" })} /></div>
-          <div className="space-y-2"><Label>Melhor Envio modo</Label><Input value={form.melhorEnvioMode} onChange={(e) => setForm({ ...form, melhorEnvioMode: e.target.value })} /></div>
-          <div className="space-y-2"><Label>Melhor Envio access token</Label><Input value={form.melhorEnvioAccessToken} onChange={(e) => setForm({ ...form, melhorEnvioAccessToken: e.target.value })} /></div>
-          <div className="space-y-2"><Label>Melhor Envio client id</Label><Input value={form.melhorEnvioClientId} onChange={(e) => setForm({ ...form, melhorEnvioClientId: e.target.value })} /></div>
-          <div className="space-y-2 md:col-span-2"><Label>Melhor Envio client secret</Label><Input value={form.melhorEnvioClientSecret} onChange={(e) => setForm({ ...form, melhorEnvioClientSecret: e.target.value })} /></div>
-          <div className="space-y-2 md:col-span-2"><Label>Webhook token Melhor Envio</Label><Input value={form.melhorEnvioWebhookToken} onChange={(e) => setForm({ ...form, melhorEnvioWebhookToken: e.target.value })} /></div>
+          <div className="space-y-2"><Label>Modo</Label><Input value={form.mercadoPagoMode} onChange={(e) => setForm({ ...form, mercadoPagoMode: e.target.value })} /></div>
+          <div className="space-y-2"><Label>Public key</Label><Input value={form.mercadoPagoPublicKey} onChange={(e) => setForm({ ...form, mercadoPagoPublicKey: e.target.value })} /></div>
+          <div className="space-y-2"><Label>Access token</Label><Input type="password" value={form.mercadoPagoAccessToken} onChange={(e) => setForm({ ...form, mercadoPagoAccessToken: e.target.value })} /></div>
+          <div className="space-y-2 md:col-span-2"><Label>Webhook token</Label><Input value={form.mercadoPagoWebhookToken} onChange={(e) => setForm({ ...form, mercadoPagoWebhookToken: e.target.value })} /></div>
+        </CardContent>
+      </Card>
+
+      {/* Melhor Envio */}
+      <Card className="border-border/50 glass-card">
+        <CardContent className="grid gap-4 p-6 md:grid-cols-2">
+          <div className="md:col-span-2"><h2 className="font-heading text-lg font-semibold text-foreground">Melhor Envio (Logistica)</h2></div>
+          <div className="space-y-2">
+            <Label>Melhor Envio ativo</Label>
+            <select className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={form.melhorEnvioEnabled ? "true" : "false"} onChange={(e) => setForm({ ...form, melhorEnvioEnabled: e.target.value === "true" })}>
+              <option value="true">Sim</option>
+              <option value="false">Nao</option>
+            </select>
+          </div>
+          <div className="space-y-2">
+            <Label>Modo</Label>
+            <select className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={form.melhorEnvioMode} onChange={(e) => setForm({ ...form, melhorEnvioMode: e.target.value })}>
+              <option value="production">Producao</option>
+              <option value="sandbox">Sandbox</option>
+            </select>
+          </div>
+          <div className="space-y-2 md:col-span-2"><Label>Access token</Label><Input type="password" value={form.melhorEnvioAccessToken} onChange={(e) => setForm({ ...form, melhorEnvioAccessToken: e.target.value })} /></div>
+          <div className="space-y-2"><Label>Client ID</Label><Input value={form.melhorEnvioClientId} onChange={(e) => setForm({ ...form, melhorEnvioClientId: e.target.value })} /></div>
+          <div className="space-y-2"><Label>Client secret</Label><Input type="password" value={form.melhorEnvioClientSecret} onChange={(e) => setForm({ ...form, melhorEnvioClientSecret: e.target.value })} /></div>
+          <div className="space-y-2 md:col-span-2"><Label>Webhook token</Label><Input value={form.melhorEnvioWebhookToken} onChange={(e) => setForm({ ...form, melhorEnvioWebhookToken: e.target.value })} /></div>
+        </CardContent>
+      </Card>
+
+      {/* Testes e Salvar */}
+      <Card className="border-border/50 glass-card">
+        <CardContent className="grid gap-4 p-6 md:grid-cols-2">
+          <div className="md:col-span-2"><h2 className="font-heading text-lg font-semibold text-foreground">Testes de integracao</h2></div>
           <div className="space-y-2"><Label>CEP de teste</Label><Input value={form.testCep} onChange={(e) => setForm({ ...form, testCep: e.target.value })} /></div>
-          <div className="flex items-end gap-3 md:col-span-2">
-            <Button type="button" variant="outline" onClick={testPayment} disabled={testingPayment}>Testar Mercado Pago</Button>
-            <Button type="button" variant="outline" onClick={testShipping} disabled={testingShipping}>Testar CEP/Frete</Button>
+          <div className="flex items-end gap-3">
+            <Button type="button" variant="outline" onClick={testPayment} disabled={testingPayment}>
+              {testingPayment && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Testar pagamento
+            </Button>
+            <Button type="button" variant="outline" onClick={testShipping} disabled={testingShipping}>
+              {testingShipping && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Testar CEP/Frete
+            </Button>
           </div>
           <div className="md:col-span-2">
             <Button onClick={handleSave} disabled={saving} className="w-full bg-gradient-primary text-primary-foreground">
