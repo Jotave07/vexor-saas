@@ -23,3 +23,15 @@ services:
       - APP_ENCRYPTION_KEY
       - MASTER_EMAIL
       - MASTER_PASSWORD
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.vexor-saas.rule=Host(`vexortech.cloud`) || Host(`nexshop.vexortech.cloud`) || HostRegexp(`{subdomain:[a-z0-9-]+}.vexortech.cloud`)
+      - traefik.http.routers.vexor-saas.entrypoints=websecure
+      - traefik.http.routers.vexor-saas.tls.certresolver=letsencrypt
+      - traefik.http.services.vexor-saas.loadbalancer.server.port=3001
+    networks:
+      - traefik-proxy
+
+networks:
+  traefik-proxy:
+    external: true
