@@ -1316,6 +1316,7 @@ app.get("/api/client/settings", requireAuth, requireRoles(["company_admin", "com
     listStoreIntegrations(store.id),
   ]);
 
+  const abacatePay = integrations.find((item) => item.provider === "abacatepay");
   const mercadoPago = integrations.find((item) => item.provider === "mercado_pago");
   const melhorEnvio = integrations.find((item) => item.provider === "melhor_envio");
 
@@ -1341,6 +1342,12 @@ app.get("/api/client/settings", requireAuth, requireRoles(["company_admin", "com
       featured_brands: parseJsonField(settings.featured_brands, []),
     } : null,
     integrations: {
+      abacatepay: abacatePay ? {
+        enabled: Boolean(abacatePay.is_enabled),
+        mode: abacatePay.mode,
+        apiKey: abacatePay.credentials?.apiKey || "",
+        webhookSecret: abacatePay.public_config?.webhookSecret || "",
+      } : null,
       mercado_pago: mercadoPago ? {
         enabled: Boolean(mercadoPago.is_enabled),
         mode: mercadoPago.mode,
