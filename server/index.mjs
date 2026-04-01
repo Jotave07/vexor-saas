@@ -24,7 +24,6 @@ import {
   getStoreIntegration,
   listStoreIntegrations,
   logIntegration,
-  orderStatusFromPaymentStatus,
   paymentStatusFromMercadoPago,
   quoteShippingForStore,
   resolveCep,
@@ -35,6 +34,8 @@ import {
   calculatePaymentCostBreakdown,
   getPaymentDiagnostics,
   logPaymentProviderEvent,
+  orderStatusFromPaymentStatus,
+  paymentStatusFromAbacatePay,
   persistIntegrationTestRun,
   resolvePaymentProvider,
 } from "./payment-providers.mjs";
