@@ -10,11 +10,13 @@ import { useStoreCustomer } from "@/hooks/useStoreCustomer";
 import { toast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
 import { formatCurrency } from "@/lib/storefront";
+import { buildStorePath, resolveStoreSlug } from "@/lib/runtime-host";
 import { StorefrontLayout } from "@/components/store/StorefrontLayout";
 import { CreditCard, MapPin, ShieldCheck, Truck } from "lucide-react";
 
 const StoreCheckout = () => {
-  const { slug } = useParams();
+  const params = useParams();
+  const slug = resolveStoreSlug(params.slug);
   const [searchParams] = useSearchParams();
   const [catalog, setCatalog] = useState<any>({ store: null, settings: { payment_methods: [] }, categories: [], products: [] });
   const { customer, addresses } = useStoreCustomer(slug);

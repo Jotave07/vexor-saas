@@ -39,8 +39,14 @@ import StoreCart from "./pages/store/StoreCart";
 import StoreCheckout from "./pages/store/StoreCheckout";
 import StoreAuth from "./pages/store/StoreAuth";
 import StoreAccount from "./pages/store/StoreAccount";
+import { getTenantSlugFromHost } from "@/lib/runtime-host";
 
 const queryClient = new QueryClient();
+
+const RootRoute = () => {
+  const tenantSlug = getTenantSlugFromHost();
+  return tenantSlug ? <StoreHome /> : <Index />;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -51,10 +57,17 @@ const App = () => (
         <AuthProvider>
           <Routes>
             {/* Public */}
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<RootRoute />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/painel/login" element={<Login />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/unauthorized" element={<Unauthorized />} />
+            <Route path="/categoria/:categoryId" element={<StoreCategory />} />
+            <Route path="/produto/:productId" element={<StoreProduct />} />
+            <Route path="/carrinho" element={<StoreCart />} />
+            <Route path="/checkout" element={<StoreCheckout />} />
+            <Route path="/auth" element={<StoreAuth />} />
+            <Route path="/conta" element={<StoreAccount />} />
             <Route path="/shop/:slug" element={<StoreHome />} />
             <Route path="/shop/:slug/category/:categoryId" element={<StoreCategory />} />
             <Route path="/shop/:slug/product/:productId" element={<StoreProduct />} />
@@ -65,6 +78,7 @@ const App = () => (
 
             {/* Dashboard redirect */}
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/painel" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
 
             {/* Admin Master */}
             <Route path="/admin" element={<ProtectedRoute requiredRole="master_admin"><AdminLayout /></ProtectedRoute>}>

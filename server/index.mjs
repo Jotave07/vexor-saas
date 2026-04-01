@@ -43,9 +43,39 @@ config({ path: ".env.mariadb" });
 
 const app = express();
 const apiPort = Number(process.env.API_PORT || 3001);
+const appDomain = String(process.env.APP_DOMAIN || "vexortech.cloud").toLowerCase();
+
+function isAllowedOrigin(origin) {
+  if (!origin) return true;
+
+  try {
+    const url = new URL(origin);
+    const hostname = url.hostname.toLowerCase();
+    const localhostHosts = new Set(["localhost", "127.0.0.1"]);
+    if (localhostHosts.has(hostname)) return true;
+    if (hostname === appDomain) return true;
+    if (hostname.endsWith(`.${appDomain}`)) return true;
+
+    const frontendUrl = process.env.FRONTEND_URL;
+    if (frontendUrl) {
+      const frontendHost = new URL(frontendUrl).hostname.toLowerCase();
+      if (hostname === frontendHost) return true;
+    }
+  } catch {
+    return false;
+  }
+
+  return false;
+}
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://127.0.0.1:8080",
+  origin(origin, callback) {
+    if (isAllowedOrigin(origin)) {
+      callback(null, true);
+      return;
+    }
+    callback(new Error("Origin nao permitida pelo CORS."));
+  },
   credentials: true,
 }));
 app.use(express.json({ limit: "2mb" }));

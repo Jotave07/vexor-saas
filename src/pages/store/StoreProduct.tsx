@@ -11,12 +11,15 @@ import { useStoreCustomer } from "@/hooks/useStoreCustomer";
 import { toast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
 import { formatCurrency, productDisplayPrice } from "@/lib/storefront";
+import { buildStorePath, resolveStoreSlug } from "@/lib/runtime-host";
 import { StorefrontLayout } from "@/components/store/StorefrontLayout";
 import { StoreProductCard } from "@/components/store/StoreProductCard";
 import { CreditCard, ShieldCheck, ShoppingCart, Truck } from "lucide-react";
 
 const StoreProduct = () => {
-  const { slug, productId } = useParams();
+  const params = useParams();
+  const slug = resolveStoreSlug(params.slug);
+  const productId = params.productId;
   const [catalog, setCatalog] = useState<any>({ store: null, settings: {}, categories: [], products: [], banners: [] });
   const [selectedImage, setSelectedImage] = useState(0);
   const [shippingZip, setShippingZip] = useState("");
@@ -78,9 +81,9 @@ const StoreProduct = () => {
       <main className="mx-auto max-w-7xl space-y-8 px-4 py-8">
         <Breadcrumb>
           <BreadcrumbList>
-            <BreadcrumbItem><BreadcrumbLink asChild><Link to={`/shop/${slug}`}>Home</Link></BreadcrumbLink></BreadcrumbItem>
+            <BreadcrumbItem><BreadcrumbLink asChild><Link to={buildStorePath(slug)}>Home</Link></BreadcrumbLink></BreadcrumbItem>
             <BreadcrumbSeparator />
-            {category && <><BreadcrumbItem><BreadcrumbLink asChild><Link to={`/shop/${slug}/category/${category.id}`}>{category.name}</Link></BreadcrumbLink></BreadcrumbItem><BreadcrumbSeparator /></>}
+            {category && <><BreadcrumbItem><BreadcrumbLink asChild><Link to={buildStorePath(slug, `/categoria/${category.id}`)}>{category.name}</Link></BreadcrumbLink></BreadcrumbItem><BreadcrumbSeparator /></>}
             <BreadcrumbItem><BreadcrumbPage>{product.name}</BreadcrumbPage></BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -131,7 +134,7 @@ const StoreProduct = () => {
 
                 <div className="flex flex-wrap gap-3">
                   <Button className="rounded-2xl bg-sky-600 px-6 text-white hover:bg-sky-700" onClick={handleAdd}><ShoppingCart className="mr-2 h-4 w-4" />Adicionar ao carrinho</Button>
-                  <Link to={`/shop/${slug}/cart`}><Button variant="outline" className="rounded-2xl border-slate-200 bg-white px-6 text-slate-950 hover:bg-slate-100">Ver carrinho</Button></Link>
+                  <Link to={buildStorePath(slug, "/carrinho")}><Button variant="outline" className="rounded-2xl border-slate-200 bg-white px-6 text-slate-950 hover:bg-slate-100">Ver carrinho</Button></Link>
                 </div>
 
                 <Separator />

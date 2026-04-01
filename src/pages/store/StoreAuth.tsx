@@ -8,9 +8,11 @@ import { toast } from "@/hooks/use-toast";
 import { useStoreCustomer } from "@/hooks/useStoreCustomer";
 import { useStoreCart } from "@/hooks/useStoreCart";
 import { api } from "@/lib/api";
+import { buildStorePath, resolveStoreSlug } from "@/lib/runtime-host";
 
 const StoreAuth = () => {
-  const { slug } = useParams();
+  const params = useParams();
+  const slug = resolveStoreSlug(params.slug);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const mode = useMemo(() => searchParams.get("mode") || "login", [searchParams]);
@@ -43,7 +45,7 @@ const StoreAuth = () => {
           document: form.document,
         });
         toast({ title: "Conta criada", description: "Sua conta foi criada com sucesso." });
-        navigate(`/shop/${slug}/account`);
+        navigate(buildStorePath(slug, "/conta"));
       } else if (mode === "reset") {
         await api.post(`/api/public/stores/${slug}/auth/reset-password`, {
           token,
@@ -54,7 +56,7 @@ const StoreAuth = () => {
       } else {
         await login({ email: form.email, password: form.password, sessionToken });
         toast({ title: "Login realizado", description: "Bem-vindo de volta." });
-        navigate(`/shop/${slug}/account`);
+        navigate(buildStorePath(slug, "/conta"));
       }
     } catch (error) {
       toast({ title: "Erro", description: (error as Error).message, variant: "destructive" });
@@ -83,7 +85,7 @@ const StoreAuth = () => {
     <div className="mx-auto flex min-h-screen max-w-5xl items-center px-4 py-8">
       <div className="grid w-full gap-8 md:grid-cols-[1.1fr_420px]">
         <div className="space-y-5">
-          <Link to={`/shop/${slug}`} className="text-sm text-muted-foreground">Voltar para a loja</Link>
+          <Link to={buildStorePath(slug)} className="text-sm text-muted-foreground">Voltar para a loja</Link>
           <h1 className="font-heading text-4xl font-bold text-foreground">
             {mode === "register" ? "Criar conta" : mode === "reset" ? "Redefinir senha" : "Entrar na sua conta"}
           </h1>

@@ -29,7 +29,7 @@ const Login = () => {
       return;
     }
 
-    navigate("/dashboard");
+    navigate("/painel");
   };
 
   const handleForgot = async (e: React.FormEvent) => {

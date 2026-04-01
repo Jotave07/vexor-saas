@@ -9,9 +9,12 @@ import { useStoreCart } from "@/hooks/useStoreCart";
 import { useStoreCustomer } from "@/hooks/useStoreCustomer";
 import { api } from "@/lib/api";
 import { toast } from "@/hooks/use-toast";
+import { buildStorePath, resolveStoreSlug } from "@/lib/runtime-host";
 
 const StoreCategory = () => {
-  const { slug, categoryId } = useParams();
+  const params = useParams();
+  const slug = resolveStoreSlug(params.slug);
+  const categoryId = params.categoryId;
   const [searchParams, setSearchParams] = useSearchParams();
   const [catalog, setCatalog] = useState<any>({ store: null, settings: {}, categories: [], products: [], banners: [] });
   const [search, setSearch] = useState(searchParams.get("q") || "");
@@ -69,7 +72,7 @@ const StoreCategory = () => {
       <main className="mx-auto max-w-7xl space-y-8 px-4 py-8">
         <Breadcrumb>
           <BreadcrumbList>
-            <BreadcrumbItem><BreadcrumbLink asChild><Link to={`/shop/${slug}`}>Home</Link></BreadcrumbLink></BreadcrumbItem>
+            <BreadcrumbItem><BreadcrumbLink asChild><Link to={buildStorePath(slug)}>Home</Link></BreadcrumbLink></BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem><BreadcrumbPage>{category?.name || "Categoria"}</BreadcrumbPage></BreadcrumbItem>
           </BreadcrumbList>
@@ -103,21 +106,21 @@ const StoreCategory = () => {
               <h2 className="font-heading text-xl font-bold text-slate-950">Subnavegacao</h2>
               <div className="mt-4 space-y-3 text-sm">
                 {relatedCategories.map((item: any) => (
-                  <Link key={item.id} to={`/shop/${slug}/category/${item.id}`} className="block rounded-2xl border border-slate-200 px-4 py-3 text-slate-600 transition hover:border-sky-200 hover:bg-sky-50 hover:text-slate-950">{item.name}</Link>
+                  <Link key={item.id} to={buildStorePath(slug, `/categoria/${item.id}`)} className="block rounded-2xl border border-slate-200 px-4 py-3 text-slate-600 transition hover:border-sky-200 hover:bg-sky-50 hover:text-slate-950">{item.name}</Link>
                 ))}
               </div>
             </div>
             <div className="rounded-[28px] bg-slate-950 p-6 text-white shadow-sm">
               <h3 className="font-heading text-2xl font-bold">Atendimento especializado</h3>
               <p className="mt-3 text-sm leading-7 text-slate-300">Consulte disponibilidade, frete, prazo e condicoes comerciais antes de fechar o pedido.</p>
-              <div className="mt-6"><Link to={`/shop/${slug}/cart`}><Button className="rounded-2xl bg-white text-slate-950 hover:bg-slate-100">Ver carrinho</Button></Link></div>
+              <div className="mt-6"><Link to={buildStorePath(slug, "/carrinho")}><Button className="rounded-2xl bg-white text-slate-950 hover:bg-slate-100">Ver carrinho</Button></Link></div>
             </div>
           </aside>
 
           <div className="space-y-6">
             <div className="flex items-center justify-between rounded-[28px] bg-white px-6 py-4 shadow-sm">
               <p className="text-sm text-slate-500"><strong className="text-slate-950">{products.length}</strong> resultados encontrados</p>
-              <Link to={`/shop/${slug}`} className="text-sm font-medium text-sky-700">Voltar para todas as linhas</Link>
+              <Link to={buildStorePath(slug)} className="text-sm font-medium text-sky-700">Voltar para todas as linhas</Link>
             </div>
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
               {products.map((product: any) => (

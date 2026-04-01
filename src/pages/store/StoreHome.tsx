@@ -8,12 +8,14 @@ import { useStoreCart } from "@/hooks/useStoreCart";
 import { useStoreCustomer } from "@/hooks/useStoreCustomer";
 import { api } from "@/lib/api";
 import { formatCurrency, productDisplayPrice } from "@/lib/storefront";
+import { buildStorePath, resolveStoreSlug } from "@/lib/runtime-host";
 import { StorefrontLayout } from "@/components/store/StorefrontLayout";
 import { StoreProductCard } from "@/components/store/StoreProductCard";
 import { ArrowRight, BadgePercent, MessageCircle, ShieldCheck, Truck } from "lucide-react";
 
 const StoreHome = () => {
-  const { slug } = useParams();
+  const params = useParams();
+  const slug = resolveStoreSlug(params.slug);
   const [catalog, setCatalog] = useState<any>({ store: null, settings: {}, categories: [], products: [], banners: [] });
   const [loading, setLoading] = useState(true);
   const [catalogError, setCatalogError] = useState("");
@@ -120,10 +122,10 @@ const StoreHome = () => {
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-3">
-                  <Link to={catalog.categories?.[0] ? `/shop/${slug}/category/${catalog.categories[0].id}` : `/shop/${slug}`}>
+                  <Link to={catalog.categories?.[0] ? buildStorePath(slug, `/categoria/${catalog.categories[0].id}`) : buildStorePath(slug)}>
                     <Button className="rounded-2xl bg-white px-6 text-slate-950 hover:bg-slate-100">Explorar departamentos</Button>
                   </Link>
-                  <Link to={`/shop/${slug}/checkout`}>
+                  <Link to={buildStorePath(slug, "/checkout")}>
                     <Button variant="outline" className="rounded-2xl border-white/30 bg-transparent px-6 text-white hover:bg-white/10">Ir para checkout</Button>
                   </Link>
                 </div>
@@ -213,11 +215,11 @@ const StoreHome = () => {
               <p className="text-sm font-medium uppercase tracking-[0.2em] text-sky-700">{home.categorySectionEyebrow || "Compre por departamento"}</p>
               <h2 className="mt-2 font-heading text-3xl font-bold text-slate-950">{home.categorySectionTitle || "Navegue pelas linhas da operacao"}</h2>
             </div>
-            <Link to={`/shop/${slug}`} className="text-sm font-medium text-sky-700">Ver catalogo completo</Link>
+            <Link to={buildStorePath(slug)} className="text-sm font-medium text-sky-700">Ver catalogo completo</Link>
           </div>
           <div className="mt-6 grid gap-4 md:grid-cols-3 xl:grid-cols-6">
             {(catalog.categories || []).slice(0, 6).map((category: any, index: number) => (
-              <Link key={category.id} to={`/shop/${slug}/category/${category.id}`} className="rounded-[24px] border border-slate-200 bg-slate-50 p-5 transition hover:border-sky-200 hover:bg-sky-50">
+              <Link key={category.id} to={buildStorePath(slug, `/categoria/${category.id}`)} className="rounded-[24px] border border-slate-200 bg-slate-50 p-5 transition hover:border-sky-200 hover:bg-sky-50">
                 <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Depto {index + 1}</p>
                 <h3 className="mt-4 font-heading text-lg font-semibold text-slate-950">{category.name}</h3>
                 <p className="mt-2 text-sm text-slate-500">{filteredProducts.filter((product: any) => product.category_id === category.id).length} produtos disponiveis</p>
@@ -250,7 +252,7 @@ const StoreHome = () => {
                 <p className="text-sm font-medium uppercase tracking-[0.2em] text-sky-700">{home.featuredEyebrow || "Mais vendidos e destaques"}</p>
                 <h2 className="mt-2 font-heading text-3xl font-bold text-slate-950">{home.featuredTitle || "Produtos com mais presenca comercial"}</h2>
               </div>
-              <Link to={`/shop/${slug}`}><Button variant="outline" className="rounded-2xl border-slate-200 bg-white text-slate-950 hover:bg-slate-100">Ver todos <ArrowRight className="ml-2 h-4 w-4" /></Button></Link>
+              <Link to={buildStorePath(slug)}><Button variant="outline" className="rounded-2xl border-slate-200 bg-white text-slate-950 hover:bg-slate-100">Ver todos <ArrowRight className="ml-2 h-4 w-4" /></Button></Link>
             </div>
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
               {featuredProducts.map((product: any) => (
@@ -267,7 +269,7 @@ const StoreHome = () => {
                 <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-500">Linha em destaque</p>
                 <h2 className="mt-2 font-heading text-3xl font-bold text-slate-950">{section.category.name}</h2>
               </div>
-              <Link to={`/shop/${slug}/category/${section.category.id}`} className="text-sm font-medium text-sky-700">Explorar departamento</Link>
+              <Link to={buildStorePath(slug, `/categoria/${section.category.id}`)} className="text-sm font-medium text-sky-700">Explorar departamento</Link>
             </div>
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
               {section.products.map((product: any) => (
@@ -287,8 +289,8 @@ const StoreHome = () => {
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <Link to={customer ? `/shop/${slug}/account` : `/shop/${slug}/auth`}><Button className="rounded-2xl bg-slate-950 text-white hover:bg-slate-800">Minha conta</Button></Link>
-              <Link to={`/shop/${slug}/cart`}><Button variant="outline" className="rounded-2xl border-slate-200 bg-white text-slate-950 hover:bg-slate-100">Ver carrinho</Button></Link>
+              <Link to={customer ? buildStorePath(slug, "/conta") : buildStorePath(slug, "/auth")}><Button className="rounded-2xl bg-slate-950 text-white hover:bg-slate-800">Minha conta</Button></Link>
+              <Link to={buildStorePath(slug, "/carrinho")}><Button variant="outline" className="rounded-2xl border-slate-200 bg-white text-slate-950 hover:bg-slate-100">Ver carrinho</Button></Link>
             </div>
           </div>
           <div className="mt-6 grid gap-4 md:grid-cols-4">

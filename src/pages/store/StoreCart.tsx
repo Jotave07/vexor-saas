@@ -8,11 +8,13 @@ import { useStoreCustomer } from "@/hooks/useStoreCustomer";
 import { toast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
 import { formatCurrency } from "@/lib/storefront";
+import { buildStorePath, resolveStoreSlug } from "@/lib/runtime-host";
 import { StorefrontLayout } from "@/components/store/StorefrontLayout";
 import { Minus, Plus, ShieldCheck, Truck } from "lucide-react";
 
 const StoreCart = () => {
-  const { slug } = useParams();
+  const params = useParams();
+  const slug = resolveStoreSlug(params.slug);
   const { customer } = useStoreCustomer(slug);
   const { sessionToken, lineItems, subtotal, updateQuantity, removeItem } = useStoreCart(slug);
   const [cep, setCep] = useState("");
@@ -51,7 +53,7 @@ const StoreCart = () => {
               <p className="text-sm font-medium uppercase tracking-[0.2em] text-sky-700">Resumo da compra</p>
               <h1 className="mt-2 font-heading text-4xl font-bold text-slate-950">Carrinho</h1>
             </div>
-            <Link to={`/shop/${slug}`}><Button variant="outline" className="rounded-2xl border-slate-200 bg-white text-slate-950 hover:bg-slate-100">Continuar comprando</Button></Link>
+            <Link to={buildStorePath(slug)}><Button variant="outline" className="rounded-2xl border-slate-200 bg-white text-slate-950 hover:bg-slate-100">Continuar comprando</Button></Link>
           </div>
         </section>
 
@@ -114,7 +116,7 @@ const StoreCart = () => {
                   <div className="flex justify-between text-slate-300"><span>Frete</span><span>Calculado no checkout</span></div>
                   <div className="border-t border-white/10 pt-3 text-lg font-bold"><div className="flex justify-between"><span>Total parcial</span><span>{formatCurrency(subtotal)}</span></div></div>
                 </div>
-                <Link to={`/shop/${slug}/checkout`}><Button className="w-full rounded-2xl bg-sky-600 text-white hover:bg-sky-700" disabled={lineItems.length === 0}>Ir para checkout</Button></Link>
+                <Link to={buildStorePath(slug, "/checkout")}><Button className="w-full rounded-2xl bg-sky-600 text-white hover:bg-sky-700" disabled={lineItems.length === 0}>Ir para checkout</Button></Link>
                 <p className="text-xs leading-6 text-slate-400">Os valores finais de frete, pagamento e cupons sao confirmados no checkout com validacao em tempo real.</p>
               </CardContent>
             </Card>

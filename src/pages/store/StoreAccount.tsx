@@ -7,9 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
+import { buildStorePath, resolveStoreSlug } from "@/lib/runtime-host";
 
 const StoreAccount = () => {
-  const { slug } = useParams();
+  const params = useParams();
+  const slug = resolveStoreSlug(params.slug);
   const navigate = useNavigate();
   const { customer, addresses, loading, refresh, logout } = useStoreCustomer(slug);
   const [orders, setOrders] = useState<any[]>([]);
@@ -32,7 +34,7 @@ const StoreAccount = () => {
 
   useEffect(() => {
     if (!loading && !customer && slug) {
-      navigate(`/shop/${slug}/auth`);
+      navigate(buildStorePath(slug, "/auth"));
     }
   }, [customer, loading, navigate, slug]);
 
@@ -103,7 +105,7 @@ const StoreAccount = () => {
 
   const handleLogout = async () => {
     await logout();
-    navigate(`/shop/${slug}`);
+    navigate(buildStorePath(slug));
   };
 
   if (!customer) {
@@ -114,7 +116,7 @@ const StoreAccount = () => {
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <Link to={`/shop/${slug}`} className="text-sm text-muted-foreground">Voltar para a loja</Link>
+          <Link to={buildStorePath(slug)} className="text-sm text-muted-foreground">Voltar para a loja</Link>
           <h1 className="font-heading text-3xl font-bold">Minha conta</h1>
         </div>
         <Button variant="outline" className="border-slate-200 bg-white text-slate-950 hover:bg-slate-100" onClick={handleLogout}>Sair</Button>

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Headset, MapPin, MessageCircle, Search, ShieldCheck, ShoppingCart, Truck } from "lucide-react";
 import { whatsappLink } from "@/lib/storefront";
+import { buildStorePath } from "@/lib/runtime-host";
 
 interface StorefrontLayoutProps {
   slug: string;
@@ -71,7 +72,7 @@ export function StorefrontLayout({
                 </div>
               )}
               <div>
-                <Link to={`/shop/${slug}`} className="font-heading text-2xl font-bold text-slate-950">{store?.name || "Loja"}</Link>
+                <Link to={buildStorePath(slug)} className="font-heading text-2xl font-bold text-slate-950">{store?.name || "Loja"}</Link>
                 <p className="mt-1 text-sm text-slate-500">{institutional.tagline || "Catalogo profissional com atendimento comercial e compra segura."}</p>
               </div>
             </div>
@@ -88,14 +89,14 @@ export function StorefrontLayout({
                   />
                 </div>
                 <div className="flex items-center gap-2">
-                  <Link to={customer ? `/shop/${slug}/account` : `/shop/${slug}/auth`}><Button variant="outline" className="h-12 rounded-2xl border-slate-200 bg-white px-5 text-slate-950 hover:bg-slate-100">{customer ? "Minha conta" : "Entrar"}</Button></Link>
-                  <Link to={`/shop/${slug}/cart`}><Button className="h-12 rounded-2xl px-5 text-white" style={{ backgroundColor: primaryColor }}><ShoppingCart className="mr-2 h-4 w-4" />Carrinho ({cartCount})</Button></Link>
+                  <Link to={customer ? buildStorePath(slug, "/conta") : buildStorePath(slug, "/auth")}><Button variant="outline" className="h-12 rounded-2xl border-slate-200 bg-white px-5 text-slate-950 hover:bg-slate-100">{customer ? "Minha conta" : "Entrar"}</Button></Link>
+                  <Link to={buildStorePath(slug, "/carrinho")}><Button className="h-12 rounded-2xl px-5 text-white" style={{ backgroundColor: primaryColor }}><ShoppingCart className="mr-2 h-4 w-4" />Carrinho ({cartCount})</Button></Link>
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <span className="mr-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{visual.categoryNavLabel || "Departamentos"}</span>
                 {categories.slice(0, 8).map((category) => (
-                  <Link key={category.id} to={`/shop/${slug}/category/${category.id}`}>
+                  <Link key={category.id} to={buildStorePath(slug, `/categoria/${category.id}`)}>
                     <Badge variant="outline" className="rounded-full border-slate-200 bg-white px-4 py-2 text-slate-700 hover:bg-slate-50">{category.name}</Badge>
                   </Link>
                 ))}
@@ -144,7 +145,7 @@ export function StorefrontLayout({
             <h4 className="font-semibold text-slate-950">Departamentos</h4>
             <div className="mt-4 space-y-3 text-sm text-slate-600">
               {categories.slice(0, 6).map((category) => (
-                <Link key={category.id} to={`/shop/${slug}/category/${category.id}`} className="block hover:text-slate-950">{category.name}</Link>
+                <Link key={category.id} to={buildStorePath(slug, `/categoria/${category.id}`)} className="block hover:text-slate-950">{category.name}</Link>
               ))}
             </div>
           </div>
