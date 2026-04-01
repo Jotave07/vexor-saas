@@ -1,5 +1,5 @@
 const DEFAULT_APP_DOMAIN = "vexortech.cloud";
-const RESERVED_SUBDOMAINS = new Set(["www", "api", "painel"]);
+const RESERVED_SUBDOMAINS = new Set(["www", "api", "painel", "nexshop"]);
 
 function currentHostname() {
   if (typeof window === "undefined") return "";
