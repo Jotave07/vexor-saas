@@ -1393,6 +1393,12 @@ app.put("/api/client/settings", requireAuth, requireRoles(["company_admin", "mas
       featured_brands: z.any().optional(),
     }),
     integrations: z.object({
+      abacatepay: z.object({
+        enabled: z.boolean().optional().default(false),
+        mode: z.enum(["sandbox", "production"]).optional().default("production"),
+        apiKey: z.string().optional().default(""),
+        webhookSecret: z.string().optional().default(""),
+      }).optional(),
       mercado_pago: z.object({
         enabled: z.boolean().optional().default(false),
         mode: z.enum(["sandbox", "production"]).optional().default("production"),
@@ -1447,6 +1453,21 @@ app.put("/api/client/settings", requireAuth, requireRoles(["company_admin", "mas
         store.id,
       ],
     );
+
+    if (payload.integrations?.abacatepay) {
+      await upsertStoreIntegration(connection, {
+        storeId: store.id,
+        provider: "abacatepay",
+        mode: payload.integrations.abacatepay.mode,
+        isEnabled: payload.integrations.abacatepay.enabled,
+        credentials: {
+          apiKey: payload.integrations.abacatepay.apiKey,
+        },
+        publicConfig: {
+          webhookSecret: payload.integrations.abacatepay.webhookSecret || generateId(),
+        },
+      });
+    }
 
     if (payload.integrations?.mercado_pago) {
       await upsertStoreIntegration(connection, {
