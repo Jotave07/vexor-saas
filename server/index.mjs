@@ -2872,8 +2872,8 @@ app.post("/api/webhooks/shipping/:storeId/:provider", asyncHandler(async (req, r
 if (hasBuiltFrontend) {
   app.use(express.static(distPath));
 
-  app.get("*", (req, res, next) => {
-    if (req.path.startsWith("/api/")) {
+  app.use((req, res, next) => {
+    if (req.method !== "GET" || req.path.startsWith("/api/")) {
       next();
       return;
     }
