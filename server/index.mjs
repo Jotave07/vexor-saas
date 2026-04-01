@@ -46,6 +46,7 @@ config({ path: ".env.mariadb" });
 
 const app = express();
 const apiPort = Number(process.env.API_PORT || 3001);
+const apiHost = process.env.API_HOST || "0.0.0.0";
 const appDomain = String(process.env.APP_DOMAIN || "vexortech.cloud").toLowerCase();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -2898,8 +2899,8 @@ app.use((error, _req, res, _next) => {
 pool.getConnection()
   .then((connection) => {
     connection.release();
-    app.listen(apiPort, () => {
-      console.log(`API VEXOR rodando em http://127.0.0.1:${apiPort}`);
+    app.listen(apiPort, apiHost, () => {
+      console.log(`API VEXOR rodando em http://${apiHost}:${apiPort}`);
     });
   })
   .catch((error) => {
