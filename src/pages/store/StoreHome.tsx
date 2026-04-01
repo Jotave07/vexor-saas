@@ -25,9 +25,9 @@ const StoreHome = () => {
     if (!slug) return;
     setLoading(true);
     setCatalogError("");
-    api.get(`/api/public/stores/${slug}/catalog`)
-      .then(setCatalog)
-      .catch((error) => {
+    api.get<any>(`/api/public/stores/${slug}/catalog`)
+      .then((data: any) => setCatalog(data))
+      .catch((error: any) => {
         console.error(error);
         setCatalogError("Nao foi possivel carregar a loja agora. Verifique se a API esta em execucao.");
       })
@@ -153,7 +153,7 @@ const StoreHome = () => {
                       <div className="aspect-square rounded-[22px] bg-slate-100" />
                     )}
                     <div className="space-y-2">
-                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">{categoryMap.get(heroProduct.category_id) || "Departamento"}</p>
+                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">{String(categoryMap.get(heroProduct.category_id) || "Departamento")}</p>
                       <h2 className="font-heading text-2xl font-bold">{heroProduct.name}</h2>
                       <p className="line-clamp-3 text-sm leading-6 text-slate-500">{heroProduct.description || "Produto estrategico com disponibilidade para operacao comercial."}</p>
                     </div>
@@ -237,7 +237,7 @@ const StoreHome = () => {
             </div>
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
               {offerProducts.map((product: any) => (
-                <StoreProductCard key={product.id} slug={slug || ""} product={product} categoryName={categoryMap.get(product.category_id)} onAddToCart={handleAddToCart} />
+                <StoreProductCard key={product.id} slug={slug || ""} product={product} categoryName={String(categoryMap.get(product.category_id) || "")} onAddToCart={handleAddToCart} />
               ))}
             </div>
           </section>
@@ -254,7 +254,7 @@ const StoreHome = () => {
             </div>
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
               {featuredProducts.map((product: any) => (
-                <StoreProductCard key={product.id} slug={slug || ""} product={product} categoryName={categoryMap.get(product.category_id)} onAddToCart={handleAddToCart} />
+                <StoreProductCard key={product.id} slug={slug || ""} product={product} categoryName={String(categoryMap.get(product.category_id) || "")} onAddToCart={handleAddToCart} />
               ))}
             </div>
           </section>
@@ -314,7 +314,7 @@ const StoreHome = () => {
             </div>
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
               {catalogProducts.map((product: any) => (
-                <StoreProductCard key={product.id} slug={slug || ""} product={product} categoryName={categoryMap.get(product.category_id)} onAddToCart={handleAddToCart} />
+                <StoreProductCard key={product.id} slug={slug || ""} product={product} categoryName={String(categoryMap.get(product.category_id) || "")} onAddToCart={handleAddToCart} />
               ))}
             </div>
           </section>
