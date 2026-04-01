@@ -18,7 +18,6 @@ import {
   verifyCustomerSession,
 } from "./storefront-auth.mjs";
 import {
-  createMercadoPagoPreference,
   fetchMercadoPagoPayment,
   findStoreBySlug,
   getStoreIntegration,
