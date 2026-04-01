@@ -18,7 +18,7 @@ Observacao importante:
 
 ## Variaveis de ambiente
 
-Use `.env.mariadb` com base em `.env.mariadb.example`.
+Use `.env` ou `.env.mariadb` com base em `.env.mariadb.example`.
 
 Bloco recomendado para producao:
 
@@ -38,6 +38,11 @@ APP_ENCRYPTION_KEY=COLOQUE_UMA_CHAVE_FORTE
 MASTER_EMAIL=admin@vexor.local
 MASTER_PASSWORD=Vexor@123456
 ```
+
+Observacao para deploy na Hostinger Docker Manager:
+
+- se a plataforma estiver lendo automaticamente o arquivo `.env` do repositorio, mantenha o `.env` alinhado com os mesmos valores do ambiente de producao
+- se voce optar por variaveis no painel da Hostinger, elas devem repetir exatamente esse mesmo bloco
 
 ## Deploy no VPS
 
