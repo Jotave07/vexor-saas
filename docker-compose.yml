@@ -29,7 +29,8 @@ services:
       - traefik.http.routers.vexor-main.entrypoints=websecure
       - traefik.http.routers.vexor-main.tls.certresolver=letsencrypt
       - traefik.http.routers.vexor-main.priority=100
-      - traefik.http.routers.vexor-tenant.rule=HostRegexp(`^[a-z0-9-]+\\.vexortech\\.cloud$`)
+      - traefik.http.routers.vexor-tenant.rule=HostRegexp(`{subdomain:[a-z0-9-]+}.vexortech.cloud`)
+      - traefik.http.routers.vexor-tenant.ruleSyntax=v2
       - traefik.http.routers.vexor-tenant.entrypoints=websecure
       - traefik.http.routers.vexor-tenant.tls.certresolver=letsencrypt
       - traefik.http.routers.vexor-tenant.priority=10
